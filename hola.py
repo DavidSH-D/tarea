@@ -1,1 +1,4 @@
-print("hola mundo, esto esta hecho en pyhon")
+edad="22";
+nombre="david";
+print("mi nombre es"+nombre+edad)
+
