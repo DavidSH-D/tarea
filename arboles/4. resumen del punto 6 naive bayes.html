@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplicación del algoritmo Naive Bayes al conjunto de datos Iris</title>
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --bg-color: #f4f7f6;
+        --container-bg: #ffffff;
+        --text-color: #333333;
+        --code-bg: #f8f9fa;
+        --border-color: #e1e4e8;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        margin: 0;
+        padding: 2rem 1rem;
+    }
+    
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: var(--container-bg);
+        padding: 3rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    h1, h2, h3 {
+        color: var(--primary-color);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    h1 {
+        font-size: 2.2rem;
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 0.5rem;
+    }
+    
+    h2 {
+        font-size: 1.8rem;
+        border-left: 4px solid var(--secondary-color);
+        padding-left: 10px;
+    }
+    
+    p {
+        margin-bottom: 1.2rem;
+    }
+    
+    ul, ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+    
+    li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .header-info {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .header-info h1 {
+        border: none;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0;
+    }
+    
+    .header-info p {
+        color: #7f8c8d;
+        font-size: 1.1em;
+        margin: 0.3rem 0;
+    }
+    
+    .toc {
+        background-color: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+    
+    .toc h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        border-left: none;
+        padding-left: 0;
+        color: var(--primary-color);
+    }
+    
+    .toc ul {
+        list-style-type: none;
+        padding-left: 1.5rem;
+        margin-bottom: 0;
+    }
+    
+    .toc > ul {
+        padding-left: 0;
+    }
+    
+    .toc li {
+        margin-bottom: 0.6rem;
+    }
+    
+    .toc a {
+        text-decoration: none;
+        color: var(--secondary-color);
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .toc a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+    
+    pre {
+        background-color: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+    }
+    
+    code {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+    
+    /* Inline code styling */
+    p code, li code {
+        background-color: rgba(27,31,35,0.05);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        color: #d63200;
+    }
+    
+    .math-block {
+        overflow-x: auto;
+        padding: 1rem 0;
+        text-align: center;
+        font-size: 1.1em;
+    }
+    
+    /* Smooth scrolling for anchor links */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem;
+        }
+        h1 { font-size: 1.8rem; }
+        h2 { font-size: 1.5rem; }
+    }
+</style>
+
+<!-- MathJax for rendering LaTeX formulas -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!-- Highlight.js for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/r.min.js"></script>
+<script>hljs.highlightAll();</script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-info">
+        <h1>Punto 6: Resumen de Aplicación del Algoritmo Naive Bayes al conjunto de datos Iris</h1>
+        <p><strong>Autor:</strong> David del Jesus Solano Herrera</p>
+        <p><strong>Fecha:</strong> 2 de Septiembre de 2026</p>
+    </div>
+
+    <!-- TTabla de Contenidos (Índice) -->
+    <div class="toc">
+        <h2>Índice</h2>
+        <ul>
+            <li><a href="#introduccion">Introducción</a>
+                <ul>
+                    <li><a href="#teorema-de-bayes">Teorema de Bayes</a></li>
+                    <li><a href="#el-conjunto-de-datos-iris">El conjunto de datos Iris</a></li>
+                </ul>
+            </li>
+            <li><a href="#preparacion-del-entorno">Preparación del entorno</a></li>
+            <li><a href="#exploracion-de-los-datos">Exploración de los datos</a>
+                <ul>
+                    <li><a href="#relacion-entre-atributos">Relación entre atributos</a></li>
+                </ul>
+            </li>
+            <li><a href="#division-en-conjuntos">División en conjunto de entrenamiento y prueba</a></li>
+            <li><a href="#entrenamiento-del-modelo">Entrenamiento del modelo Naive Bayes</a></li>
+            <li><a href="#prediccion">Predicción sobre el conjunto de prueba</a></li>
+            <li><a href="#evaluacion-del-modelo">Evaluación del modelo</a>
+                <ul>
+                    <li><a href="#matriz-de-confusion">Matriz de confusión</a></li>
+                    <li><a href="#interpretacion">Interpretación de resultados</a></li>
+                </ul>
+            </li>
+            <li><a href="#visualizacion">Visualización de la frontera de decisión</a></li>
+            <li><a href="#ventajas-y-limitaciones">Ventajas y limitaciones observadas</a></li>
+            <li><a href="#conclusion">Conclusión</a></li>
+        </ul>
+    </div>
+
+    <h1 id="introduccion">Introducción</h1>
+    <p><strong>Naive Bayes</strong> es un algoritmo de clasificación supervisada que se fundamenta en el <strong>Teorema de Bayes</strong>, que estima la probabilidad de una observación pertenezca a una categoría, en función de las probabilidades de sus características.</p>
+    
+    <p>Se le denomina "naive" (ingenuo) porque supone que todos los atributos predictivos dado el valor de la clase, son <strong>independientes condicionalmente</strong> entre sí. A pesar de que esta hipótesis no se concretiza con frecuencia en datos reales, el algoritmo tiende a tener un desempeño sorprendentemente bueno en la práctica; es rápido para entrenar y necesita una cantidad pequeña de información para calcular los parámetros necesarios.</p>
+
+    <h2 id="teorema-de-bayes">Teorema de Bayes</h2>
+    <p>El teorema de Bayes se aplica de la siguiente manera:</p>
+    
+    <div class="math-block">
+        $$ P(C_k \mid X) = \frac{P(X \mid C_k) \, P(C_k)}{P(X)} $$
+    </div>
+    
+    <p>Donde podemos decir que:</p>
+    <ul>
+        <li>\( P(C_k \mid X) \): probabilidad posterior de la clase \( C_k \) dado el vector de atributos \( X \).</li>
+        <li>\( P(X \mid C_k) \): verosimilitud, probabilidad de observar \( X \) dado que la clase es \( C_k \).</li>
+        <li>\( P(C_k) \): probabilidad a priori de la clase \( C_k \).</li>
+        <li>\( P(X) \): probabilidad marginal de \( X \) (actúa como constante normalizadora).</li>
+    </ul>
+
+    <p>La probabilidad conjunta se, suponiendo independencia condicional, descompone como el resultado de las probabilidades individuales de cada característica:</p>
+    
+    <div class="math-block">
+        $$ P(X \mid C_k) = \prod_{i=1}^{n} P(x_i \mid C_k) $$
+    </div>
+
+    <p>La observación se asigna a la clase que maximiza la probabilidad, según lo determina el clasificador. Después:</p>
+    
+    <div class="math-block">
+        $$ \hat{y} = \underset{k}{\operatorname{argmax}} \; P(C_k) \prod_{i=1}^{n} P(x_i \mid C_k) $$
+    </div>
+
+    <p>En el caso de los atributos numéricos continuos, como sucede con Iris, se normalmente se presupone que cada atributo dentro de cada clase sigue una distribución <strong>normal (gaussiana)</strong>, cuyos parámetros (la desviación estándar y la media) se calcula en función de los datos de entrenamiento.</p>
+
+    <h2 id="el-conjunto-de-datos-iris">El conjunto de datos Iris</h2>
+    <p>El conjunto de datos <strong>Iris</strong>, que fue recolectado en un principio por Ronald Fisher (1936), incluye 150 observaciones de flores de iris, con 50 de cada una de tres especies: <em>virginica</em>, <em>versicolor</em> y <em>setosa</em>. Se realizaron cuatro mediciones por cada flor, características numéricas:</p>
+    <ul>
+        <li>Largo del sépalo (<code>Sepal.Length</code>)</li>
+        <li>Ancho del sépalo (<code>Sepal.Width</code>)</li>
+        <li>Largo del pétalo (<code>Petal.Length</code>)</li>
+        <li>Ancho del pétalo (<code>Petal.Width</code>)</li>
+    </ul>
+    <p>La meta es pronosticar la especie (<code>Species</code>) utilizando estos cuatro elementos medidas, lo que lo hace un problema clásico de clasificación multiclase, que es perfecto para explicar Naive Bayes.</p>
+
+    <h1 id="preparacion-del-entorno">Preparación del entorno</h1>
+    <pre><code class="language-r"># Instalar paquetes si no están disponibles (ejecutar una sola vez)
+paquetes <- c("e1071", "caret", "ggplot2", "GGally")
+instalar <- paquetes[!(paquetes %in% installed.packages()[, "Package"])]
+if (length(instalar) > 0) install.packages(instalar)
+
+library(e1071)   # Implementación de Naive Bayes
+library(caret)   # División de datos y matriz de confusión
+library(ggplot2) # Visualización
+library(GGally)  # Gráfico de pares de variables</code></pre>
+
+    <h1 id="exploracion-de-los-datos">Exploración de los datos</h1>
+    <pre><code class="language-r">data(iris)
+str(iris)
+summary(iris)</code></pre>
+
+    <pre><code class="language-r">table(iris$Species)</code></pre>
+    <p>Las clases están perfectamente balanceadas: 50 observaciones por especie.</p>
+
+    <h2 id="relacion-entre-atributos">Relación entre atributos</h2>
+    <pre><code class="language-r">ggpairs(iris, aes(color = Species, alpha = 0.6),
+        columns = 1:4,
+        title = "Relación entre atributos de Iris por especie")</code></pre>
+    <p>Se observa que <code>Petal.Length</code> y <code>Petal.Width</code> separan muy bien a <em>setosa</em> del resto, mientras que <em>versicolor</em> y <em>virginica</em> presentan cierto solapamiento.</p>
+
+    <h1 id="division-en-conjuntos">División en conjunto de entrenamiento y prueba</h1>
+    <p>Para evaluar el modelo de forma honesta, se separan los datos en un conjunto de entrenamiento (70%) y uno de prueba (30%), manteniendo la proporción de clases mediante muestreo estratificado.</p>
+    
+    <pre><code class="language-r">set.seed(123)
+indices <- createDataPartition(iris$Species, p = 0.7, list = FALSE)
+
+entrenamiento <- iris[indices, ]
+prueba        <- iris[-indices, ]
+
+nrow(entrenamiento)
+nrow(prueba)</code></pre>
+
+    <h1 id="entrenamiento-del-modelo">Entrenamiento del modelo Naive Bayes</h1>
+    <p>Se utiliza la función <code>naiveBayes()</code> del paquete <code>e1071</code>, que para atributos numéricos estima automáticamente una distribución normal por clase.</p>
+    
+    <pre><code class="language-r">modelo_nb <- naiveBayes(Species ~ ., data = entrenamiento)
+modelo_nb</code></pre>
+    
+    <p>La salida del modelo muestra:</p>
+    <ul>
+        <li>Las probabilidades <strong>a priori</strong> de cada clase (<code>A-priori probabilities</code>).</li>
+        <li>Para cada atributo y cada clase, la <strong>media</strong> y la <strong>desviación estándar</strong> estimadas, que definen la distribución normal usada para calcular la verosimilitud.</li>
+    </ul>
+
+    <h1 id="prediccion">Predicción sobre el conjunto de prueba</h1>
+    <pre><code class="language-r">predicciones <- predict(modelo_nb, newdata = prueba)
+head(data.frame(Real = prueba$Species, Predicho = predicciones), 10)</code></pre>
+    
+    <p>También se pueden obtener las probabilidades posteriores para cada clase:</p>
+    <pre><code class="language-r">probabilidades <- predict(modelo_nb, newdata = prueba, type = "raw")
+head(round(probabilidades, 4))</code></pre>
+
+    <h1 id="evaluacion-del-modelo">Evaluación del modelo</h1>
+    
+    <h2 id="matriz-de-confusion">Matriz de confusión</h2>
+    <pre><code class="language-r">matriz_confusion <- confusionMatrix(predicciones, prueba$Species)
+matriz_confusion</code></pre>
+
+    <h2 id="interpretacion">Interpretación de resultados</h2>
+    <pre><code class="language-r">exactitud <- matriz_confusion$overall["Accuracy"]
+cat("Exactitud (Accuracy) del modelo:", round(exactitud * 100, 2), "%\n")</code></pre>
+    
+    <pre><code class="language-r">matriz_confusion$byClass[, c("Sensitivity", "Specificity", "Pos Pred Value")]</code></pre>
+    
+    <p>En general, el modelo Naive Bayes clasifica correctamente a <em>Iris-setosa</em> con un 100% de precisión, dado que es linealmente separable de las otras dos especies. Los eventuales errores de clasificación suelen concentrarse entre <em>versicolor</em> y <em>virginica</em>, ya que estas dos clases presentan atributos con distribuciones más solapadas (especialmente en <code>Sepal.Width</code> y <code>Sepal.Length</code>).</p>
+
+    <h1 id="visualizacion">Visualización de la frontera de decisión</h1>
+    <p>Para ilustrar visualmente cómo separa el modelo a las clases, se entrena un segundo modelo usando solo dos atributos (los más discriminantes) y se grafica la región de decisión.</p>
+    
+    <pre><code class="language-r">modelo_2d <- naiveBayes(Species ~ Petal.Length + Petal.Width, data = entrenamiento)
+
+rango_largo <- seq(min(iris$Petal.Length) - 0.5, max(iris$Petal.Length) + 0.5, length.out = 200)
+rango_ancho <- seq(min(iris$Petal.Width) - 0.5, max(iris$Petal.Width) + 0.5, length.out = 200)
+malla <- expand.grid(Petal.Length = rango_largo, Petal.Width = rango_ancho)
+malla$Species <- predict(modelo_2d, newdata = malla)
+
+ggplot() +
+  geom_tile(data = malla, aes(x = Petal.Length, y = Petal.Width, fill = Species), alpha = 0.3) +
+  geom_point(data = iris, aes(x = Petal.Length, y = Petal.Width, color = Species), size = 2) +
+  labs(title = "Región de decisión de Naive Bayes",
+       x = "Largo del pétalo (cm)", y = "Ancho del pétalo (cm)") +
+  theme_minimal()</code></pre>
+
+    <h1 id="ventajas-y-limitaciones">Ventajas y limitaciones observadas</h1>
+    
+    <p><strong>Ventajas:</strong></p>
+    <ul>
+        <li>Entrenamiento de bajo costo computacional y muy rápido.</li>
+        <li>Buen rendimiento a pesar de contar con pocos datos.</li>
+        <li>De fácil interpretación: cada clase queda explicada por medio de medias y desviaciones a nivel de sus características.</li>
+    </ul>
+
+    <p><strong>Limitaciones:</strong></p>
+    <ul>
+        <li>La hipótesis de independencia entre atributos se cumple con poca frecuencia (Ejemplo: <code>Petal.Length</code> y <code>Petal.Width</code> tienen una correlación muy fuerte).</li>
+        <li>Si esa suposición no se adecúa bien a los datos reales, el modelo puede perder precisión.</li>
+        <li>Su rendimiento se deteriora frente a clases con distribuciones muy superpuestas, como se vio entre <em>virginica</em> y <em>versicolor</em>.</li>
+    </ul>
+
+    <h1 id="conclusion">Conclusión</h1>
+    <p>A pesar de su simplicidad y de la suposición "ingenua" de independencia entre atributos, Naive Bayes logra un desempeño alto en el conjunto de datos Iris, en gran parte porque una de las tres clases (<em>setosa</em>) es linealmente separable y las variables de pétalo son muy informativas. Esto confirma que Naive Bayes es una excelente opción como modelo base (<em>baseline</em>) rápido y sencillo antes de probar algoritmos más complejos.</p>
+
+</div>
+
+</body>
+</html>
